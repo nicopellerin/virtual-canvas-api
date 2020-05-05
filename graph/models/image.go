@@ -1,6 +1,6 @@
 package models
 
-// Images
+// Image - Structure of single image file
 type Image struct {
 	ID         string  `json:"id, omitempty" bson:"id, omitempty"`
 	Src        string  `json:"src, omitempty"`
