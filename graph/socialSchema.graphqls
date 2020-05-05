@@ -1,0 +1,5 @@
+type Social {
+  instagram: String
+  facebook: String
+  website: String
+}

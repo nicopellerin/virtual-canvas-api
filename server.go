@@ -14,6 +14,8 @@ import (
 const defaultPort = "8080"
 
 func main() {
+	database.New()
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
