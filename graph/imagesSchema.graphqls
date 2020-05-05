@@ -1,0 +1,11 @@
+type Image {
+  id: ID!
+  src: String!
+  name: String
+  ratio: Float
+  border: Boolean
+  texture: Boolean
+  background: Boolean
+  rotate: Boolean
+  lighting: Boolean
+}
