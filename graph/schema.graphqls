@@ -37,13 +37,13 @@ input SignupUserInput {
 type Image {
   id: ID!
   src: String!
-  name: String
-  ratio: Float
-  border: Boolean
-  texture: Boolean
-  background: Boolean
-  rotate: Boolean
-  lighting: Boolean
+  name: String!
+  ratio: Float!
+  border: Boolean!
+  texture: Boolean!
+  background: Boolean!
+  rotate: Boolean!
+  lighting: String!
 }
 
 input AddArtworkInput {
@@ -70,7 +70,7 @@ type Query {
 
 type Mutation {
   updateUser(input: UsernameInput!): User!
-  loginUser(input: LoginUserInput!): User!
+  loginUser(input: LoginUserInput!): AuthResponse!
   signupUser(input: SignupUserInput!): AuthResponse!
   addArtwork(input: AddArtworkInput!): Image!
 }

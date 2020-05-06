@@ -1,11 +1,11 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/nicopellerin/virtual-canvas-api/graph/model"
 	"github.com/nicopellerin/virtual-canvas-api/graph/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -17,7 +17,7 @@ type User struct {
 	Email    string             `json:"email, omitempty"`
 	Password string             `json:"password, omitempty"`
 	Username string             `json:"username, omitempty"`
-	Images   []Image            `json:"images, omitempty" bson:"images"`
+	Images   *[]*Image          `json:"images, omitempty" bson:"images"`
 	Social   Social             `json:"social, omitempty" bson:"social"`
 }
 
@@ -25,7 +25,7 @@ type User struct {
 func (u *User) HashPassword(password string) error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
-		return err
+		return errors.New("YOOOOOO")
 	}
 
 	u.Password = string(passwordHash)
@@ -57,7 +57,7 @@ func (u *User) GenerateJWT() (*AuthToken, error) {
 		return nil, err
 	}
 
-	return &model.AuthToken{
+	return &AuthToken{
 		AccessToken: accessToken,
 		ExpiredAt:   expiredAt,
 	}, nil

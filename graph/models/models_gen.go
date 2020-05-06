@@ -25,14 +25,6 @@ type LoginUserInput struct {
 	Password string `json:"password"`
 }
 
-type PublicProfile struct {
-	ID       string   `json:"id"`
-	Email    string   `json:"email"`
-	Username string   `json:"username"`
-	Images   []*Image `json:"images"`
-	Social   *Social  `json:"social"`
-}
-
 type SignupUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`

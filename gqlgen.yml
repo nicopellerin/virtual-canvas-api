@@ -24,7 +24,7 @@ resolver:
   package: graph
 
 # Optional: turn on use `gqlgen:"fieldName"` tags in your models
-struct_tag: json
+# struct_tag: json
 
 # Optional: turn on to use []Thing instead of []*Thing
 # omit_slice_element_pointers: false
@@ -35,7 +35,7 @@ struct_tag: json
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-  - "github.com/nicopellerin/virtual-canvas-api/graph/model"
+  - "github.com/nicopellerin/virtual-canvas-api/graph/models"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
@@ -54,11 +54,24 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+  # Float:
+  #   model:
+  #     - github.com/99designs/gqlgen/graphql.Float
+  #     - github.com/99designs/gqlgen/graphql.Float64
+  #     - github.com/99designs/gqlgen/graphql.Float32
+  Boolean:
+    model:
+      - github.com/99designs/gqlgen/graphql.Boolean
   User:
     model: github.com/nicopellerin/virtual-canvas-api/graph/models.User
+    fields:
+      images:
+        resolver: true
+      social:
+        resolver: true
   Image:
     model: github.com/nicopellerin/virtual-canvas-api/graph/models.Image
   Social:
     model: github.com/nicopellerin/virtual-canvas-api/graph/models.Social
-  # PublicProfile:
-  #   model: github.com/nicopellerin/virtual-canvas-api/graph/models.PublicProfile
+  PublicProfile:
+    model: github.com/nicopellerin/virtual-canvas-api/graph/models.PublicProfile

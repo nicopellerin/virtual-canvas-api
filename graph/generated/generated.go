@@ -36,8 +36,8 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Image() ImageResolver
 	Mutation() MutationResolver
+	PublicProfile() PublicProfileResolver
 	Query() QueryResolver
 	User() UserResolver
 }
@@ -103,22 +103,25 @@ type ComplexityRoot struct {
 	}
 }
 
-type ImageResolver interface {
-	Ratio(ctx context.Context, obj *models.Image) (*float64, error)
-
-	Lighting(ctx context.Context, obj *models.Image) (*bool, error)
-}
 type MutationResolver interface {
 	UpdateUser(ctx context.Context, input models.UsernameInput) (*models.User, error)
-	LoginUser(ctx context.Context, input models.LoginUserInput) (*models.User, error)
+	LoginUser(ctx context.Context, input models.LoginUserInput) (*models.AuthResponse, error)
 	SignupUser(ctx context.Context, input models.SignupUserInput) (*models.AuthResponse, error)
 	AddArtwork(ctx context.Context, input models.AddArtworkInput) (*models.Image, error)
+}
+type PublicProfileResolver interface {
+	ID(ctx context.Context, obj *models.PublicProfile) (string, error)
+
+	Images(ctx context.Context, obj *models.PublicProfile) ([]*models.Image, error)
 }
 type QueryResolver interface {
 	GetUser(ctx context.Context, input *models.UsernameInput) (*models.User, error)
 }
 type UserResolver interface {
 	ID(ctx context.Context, obj *models.User) (string, error)
+
+	Images(ctx context.Context, obj *models.User) ([]*models.Image, error)
+	Social(ctx context.Context, obj *models.User) (*models.Social, error)
 }
 
 type executableSchema struct {
@@ -488,13 +491,13 @@ input SignupUserInput {
 type Image {
   id: ID!
   src: String!
-  name: String
-  ratio: Float
-  border: Boolean
-  texture: Boolean
-  background: Boolean
-  rotate: Boolean
-  lighting: Boolean
+  name: String!
+  ratio: Float!
+  border: Boolean!
+  texture: Boolean!
+  background: Boolean!
+  rotate: Boolean!
+  lighting: String!
 }
 
 input AddArtworkInput {
@@ -521,7 +524,7 @@ type Query {
 
 type Mutation {
   updateUser(input: UsernameInput!): User!
-  loginUser(input: LoginUserInput!): User!
+  loginUser(input: LoginUserInput!): AuthResponse!
   signupUser(input: SignupUserInput!): AuthResponse!
   addArtwork(input: AddArtworkInput!): Image!
 }
@@ -881,11 +884,14 @@ func (ec *executionContext) _Image_name(ctx context.Context, field graphql.Colle
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Image_ratio(ctx context.Context, field graphql.CollectedField, obj *models.Image) (ret graphql.Marshaler) {
@@ -899,24 +905,27 @@ func (ec *executionContext) _Image_ratio(ctx context.Context, field graphql.Coll
 		Object:   "Image",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Image().Ratio(rctx, obj)
+		return obj.Ratio, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*float64)
+	res := resTmp.(float64)
 	fc.Result = res
-	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Image_border(ctx context.Context, field graphql.CollectedField, obj *models.Image) (ret graphql.Marshaler) {
@@ -943,11 +952,14 @@ func (ec *executionContext) _Image_border(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Image_texture(ctx context.Context, field graphql.CollectedField, obj *models.Image) (ret graphql.Marshaler) {
@@ -974,11 +986,14 @@ func (ec *executionContext) _Image_texture(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Image_background(ctx context.Context, field graphql.CollectedField, obj *models.Image) (ret graphql.Marshaler) {
@@ -1005,11 +1020,14 @@ func (ec *executionContext) _Image_background(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Image_rotate(ctx context.Context, field graphql.CollectedField, obj *models.Image) (ret graphql.Marshaler) {
@@ -1036,11 +1054,14 @@ func (ec *executionContext) _Image_rotate(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalOBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Image_lighting(ctx context.Context, field graphql.CollectedField, obj *models.Image) (ret graphql.Marshaler) {
@@ -1054,24 +1075,27 @@ func (ec *executionContext) _Image_lighting(ctx context.Context, field graphql.C
 		Object:   "Image",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Image().Lighting(rctx, obj)
+		return obj.Lighting, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*bool)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1151,9 +1175,9 @@ func (ec *executionContext) _Mutation_loginUser(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(*models.AuthResponse)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNAuthResponse2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐAuthResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_signupUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1249,13 +1273,13 @@ func (ec *executionContext) _PublicProfile_id(ctx context.Context, field graphql
 		Object:   "PublicProfile",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return ec.resolvers.PublicProfile().ID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1351,13 +1375,13 @@ func (ec *executionContext) _PublicProfile_images(ctx context.Context, field gra
 		Object:   "PublicProfile",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Images, nil
+		return ec.resolvers.PublicProfile().Images(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1397,9 +1421,9 @@ func (ec *executionContext) _PublicProfile_social(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.Social)
+	res := resTmp.(models.Social)
 	fc.Result = res
-	return ec.marshalOSocial2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐSocial(ctx, field.Selections, res)
+	return ec.marshalOSocial2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐSocial(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1749,13 +1773,13 @@ func (ec *executionContext) _User_images(ctx context.Context, field graphql.Coll
 		Object:   "User",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Images, nil
+		return ec.resolvers.User().Images(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1767,9 +1791,9 @@ func (ec *executionContext) _User_images(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]models.Image)
+	res := resTmp.([]*models.Image)
 	fc.Result = res
-	return ec.marshalNImage2ᚕgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx, field.Selections, res)
+	return ec.marshalNImage2ᚕᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_social(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
@@ -1783,13 +1807,13 @@ func (ec *executionContext) _User_social(ctx context.Context, field graphql.Coll
 		Object:   "User",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Social, nil
+		return ec.resolvers.User().Social(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1798,9 +1822,9 @@ func (ec *executionContext) _User_social(ctx context.Context, field graphql.Coll
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(models.Social)
+	res := resTmp.(*models.Social)
 	fc.Result = res
-	return ec.marshalOSocial2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐSocial(ctx, field.Selections, res)
+	return ec.marshalOSocial2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐSocial(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -3034,45 +3058,48 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Image_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "src":
 			out.Values[i] = ec._Image_src(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "name":
 			out.Values[i] = ec._Image_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "ratio":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Image_ratio(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Image_ratio(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "border":
 			out.Values[i] = ec._Image_border(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "texture":
 			out.Values[i] = ec._Image_texture(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "background":
 			out.Values[i] = ec._Image_background(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "rotate":
 			out.Values[i] = ec._Image_rotate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "lighting":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Image_lighting(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._Image_lighting(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3142,22 +3169,40 @@ func (ec *executionContext) _PublicProfile(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("PublicProfile")
 		case "id":
-			out.Values[i] = ec._PublicProfile_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PublicProfile_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "email":
 			out.Values[i] = ec._PublicProfile_email(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "username":
 			out.Values[i] = ec._PublicProfile_username(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "images":
-			out.Values[i] = ec._PublicProfile_images(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PublicProfile_images(ctx, field, obj)
+				return res
+			})
 		case "social":
 			out.Values[i] = ec._PublicProfile_social(ctx, field, obj)
 		default:
@@ -3281,12 +3326,30 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "images":
-			out.Values[i] = ec._User_images(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_images(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "social":
-			out.Values[i] = ec._User_social(ctx, field, obj)
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_social(ctx, field, obj)
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3589,6 +3652,20 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	return graphql.UnmarshalFloat(v)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloat(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalID(v)
 }
@@ -3607,7 +3684,7 @@ func (ec *executionContext) marshalNImage2githubᚗcomᚋnicopellerinᚋvirtual�
 	return ec._Image(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNImage2ᚕgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx context.Context, sel ast.SelectionSet, v []models.Image) graphql.Marshaler {
+func (ec *executionContext) marshalNImage2ᚕᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx context.Context, sel ast.SelectionSet, v []*models.Image) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3631,7 +3708,7 @@ func (ec *executionContext) marshalNImage2ᚕgithubᚗcomᚋnicopellerinᚋvirtu
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOImage2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx, sel, v[i])
+			ret[i] = ec.marshalOImage2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3955,29 +4032,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
-}
-
-func (ec *executionContext) unmarshalOFloat2float64(ctx context.Context, v interface{}) (float64, error) {
-	return graphql.UnmarshalFloat(v)
-}
-
-func (ec *executionContext) marshalOFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
-	return graphql.MarshalFloat(v)
-}
-
-func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOFloat2float64(ctx, v)
-	return &res, err
-}
-
-func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec.marshalOFloat2float64(ctx, sel, *v)
 }
 
 func (ec *executionContext) marshalOImage2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx context.Context, sel ast.SelectionSet, v models.Image) graphql.Marshaler {
