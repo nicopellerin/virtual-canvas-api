@@ -10,7 +10,6 @@ import (
 
 	"github.com/nicopellerin/virtual-canvas-api/graph/database"
 	"github.com/nicopellerin/virtual-canvas-api/graph/generated"
-	"github.com/nicopellerin/virtual-canvas-api/graph/model"
 	"github.com/nicopellerin/virtual-canvas-api/graph/models"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -23,11 +22,11 @@ func (r *imageResolver) Lighting(ctx context.Context, obj *models.Image) (*bool,
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UsernameInput) (*models.User, error) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, input models.UsernameInput) (*models.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *mutationResolver) LoginUser(ctx context.Context, input model.LoginUserInput) (*models.User, error) {
+func (r *mutationResolver) LoginUser(ctx context.Context, input models.LoginUserInput) (*models.User, error) {
 	var user *models.User
 	database.Collection.FindOne(ctx, bson.D{{"username", input.Username}}).Decode(&user)
 
@@ -53,7 +52,7 @@ func (r *mutationResolver) LoginUser(ctx context.Context, input model.LoginUserI
 	// }, nil
 }
 
-func (r *mutationResolver) SignupUser(ctx context.Context, input model.SignupUserInput) (*model.AuthResponse, error) {
+func (r *mutationResolver) SignupUser(ctx context.Context, input models.SignupUserInput) (*models.AuthResponse, error) {
 	// var userDB *models.User
 
 	// database.Collection.FindOne(ctx, bson.D{{"username", input.Username}}).Decode(&userDB)
@@ -90,11 +89,11 @@ func (r *mutationResolver) SignupUser(ctx context.Context, input model.SignupUse
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *mutationResolver) AddArtwork(ctx context.Context, input model.AddArtworkInput) (*models.Image, error) {
+func (r *mutationResolver) AddArtwork(ctx context.Context, input models.AddArtworkInput) (*models.Image, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) GetUser(ctx context.Context, input *model.UsernameInput) (*models.User, error) {
+func (r *queryResolver) GetUser(ctx context.Context, input *models.UsernameInput) (*models.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
