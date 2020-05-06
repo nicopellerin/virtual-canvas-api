@@ -1,0 +1,76 @@
+scalar Time
+
+type AuthToken {
+  accessToken: String!
+  expiredAt: Time!
+}
+
+type AuthResponse {
+  authToken: AuthToken!
+  user: User!
+}
+
+type User {
+  id: ID!
+  email: String!
+  password: String!
+  username: String!
+  images: [Image]!
+  social: Social
+}
+
+input UsernameInput {
+  username: String!
+}
+
+input LoginUserInput {
+  username: String!
+  password: String!
+}
+
+input SignupUserInput {
+  email: String!
+  password: String!
+  username: String!
+}
+
+type Image {
+  id: ID!
+  src: String!
+  name: String
+  ratio: Float
+  border: Boolean
+  texture: Boolean
+  background: Boolean
+  rotate: Boolean
+  lighting: Boolean
+}
+
+input AddArtworkInput {
+  id: ID!
+}
+
+type Social {
+  instagram: String
+  facebook: String
+  website: String
+}
+
+type PublicProfile {
+  id: ID!
+  email: String!
+  username: String!
+  images: [Image]
+  social: Social
+}
+
+type Query {
+  getUser(input: UsernameInput): User
+}
+
+type Mutation {
+  updateUser(input: UsernameInput!): User!
+  loginUser(input: LoginUserInput!): User!
+  signupUser(input: SignupUserInput!): AuthResponse!
+  addArtwork(input: AddArtworkInput!): Image!
+}

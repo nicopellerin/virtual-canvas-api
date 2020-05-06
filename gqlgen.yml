@@ -56,12 +56,9 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
   User:
     model: github.com/nicopellerin/virtual-canvas-api/graph/models.User
-    fields:
-      images:
-        resolver: true
   Image:
     model: github.com/nicopellerin/virtual-canvas-api/graph/models.Image
   Social:
     model: github.com/nicopellerin/virtual-canvas-api/graph/models.Social
-  PublicProfile:
-    model: github.com/nicopellerin/virtual-canvas-api/graph/models.PublicProfile
+  # PublicProfile:
+  #   model: github.com/nicopellerin/virtual-canvas-api/graph/models.PublicProfile

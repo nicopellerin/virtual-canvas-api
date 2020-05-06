@@ -1,7 +1,0 @@
-type PublicProfile {
-  id: ID!
-  email: String!
-  username: String!
-  images: [Image]
-  social: Social
-}

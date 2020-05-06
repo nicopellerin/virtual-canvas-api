@@ -1,7 +1,10 @@
 package database
 
 import (
+	"context"
 	"fmt"
+	"log"
+
 	"github.com/nicopellerin/virtual-canvas-api/graph/utils"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -10,7 +13,7 @@ import (
 const dbName = "virtualcanvas"
 const collectionName = "users"
 
-var collection *mongo.Collection
+var Collection *mongo.Collection
 
 func New() {
 	mongoURI := utils.GetEnvVars("MONGO_URI")
@@ -18,7 +21,7 @@ func New() {
 	clientOptions := options.Client().ApplyURI(mongoURI)
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
-	if err != {
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -27,7 +30,7 @@ func New() {
 		log.Fatal(err)
 	}
 
-	collection = client.Database(dbName).Collection(collectionName)
+	Collection = client.Database(dbName).Collection(collectionName)
 
 	fmt.Println("Connected to MONGO_DB")
 }
