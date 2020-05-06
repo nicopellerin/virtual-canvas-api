@@ -111,8 +111,6 @@ type MutationResolver interface {
 }
 type PublicProfileResolver interface {
 	ID(ctx context.Context, obj *models.PublicProfile) (string, error)
-
-	Images(ctx context.Context, obj *models.PublicProfile) ([]*models.Image, error)
 }
 type QueryResolver interface {
 	GetUser(ctx context.Context, input *models.UsernameInput) (*models.User, error)
@@ -1375,13 +1373,13 @@ func (ec *executionContext) _PublicProfile_images(ctx context.Context, field gra
 		Object:   "PublicProfile",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.PublicProfile().Images(rctx, obj)
+		return obj.Images, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3193,16 +3191,7 @@ func (ec *executionContext) _PublicProfile(ctx context.Context, sel ast.Selectio
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "images":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PublicProfile_images(ctx, field, obj)
-				return res
-			})
+			out.Values[i] = ec._PublicProfile_images(ctx, field, obj)
 		case "social":
 			out.Values[i] = ec._PublicProfile_social(ctx, field, obj)
 		default:

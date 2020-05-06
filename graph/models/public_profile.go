@@ -6,6 +6,6 @@ type PublicProfile struct {
 	ID       primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	Email    string             `json:"email, omitempty"`
 	Username string             `json:"username, omitempty"`
-	// Images   []*Image           `json:"images, omitempty"`
-	Social Social `json:"social_links, omitempty" bson:"social_links"`
+	Images   []*Image           `json:"images, omitempty"`
+	Social   Social             `json:"social_links, omitempty" bson:"social_links"`
 }

@@ -54,7 +54,7 @@ func (r *mutationResolver) SignupUser(ctx context.Context, input models.SignupUs
 	}
 
 	if len(input.Password) < 8 {
-		return nil, errors.New("Please choose a password of minimum 8 characters long")
+		return nil, errors.New("Please choose a password with a minimum of 8 characters")
 	}
 
 	err = user.HashPassword(input.Password)
@@ -91,10 +91,6 @@ func (r *mutationResolver) AddArtwork(ctx context.Context, input models.AddArtwo
 
 func (r *publicProfileResolver) ID(ctx context.Context, obj *models.PublicProfile) (string, error) {
 	return obj.ID.Hex(), nil
-}
-
-func (r *publicProfileResolver) Images(ctx context.Context, obj *models.PublicProfile) ([]*models.Image, error) {
-	panic(fmt.Errorf("not implemented"))
 }
 
 func (r *queryResolver) GetUser(ctx context.Context, input *models.UsernameInput) (*models.User, error) {

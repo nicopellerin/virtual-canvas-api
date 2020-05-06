@@ -54,11 +54,6 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
-  # Float:
-  #   model:
-  #     - github.com/99designs/gqlgen/graphql.Float
-  #     - github.com/99designs/gqlgen/graphql.Float64
-  #     - github.com/99designs/gqlgen/graphql.Float32
   Boolean:
     model:
       - github.com/99designs/gqlgen/graphql.Boolean
