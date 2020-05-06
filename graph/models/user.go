@@ -41,7 +41,7 @@ func (u *User) CheckPasswordHash(password string) bool {
 
 var secret = utils.GetEnvVars("JWT_SECRET")
 
-func (u *User) GenerateJWT() (*model.AuthToken, error) {
+func (u *User) GenerateJWT() (*AuthToken, error) {
 	expiredAt := time.Now().Add(time.Hour * 24 * 7)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
@@ -56,9 +56,9 @@ func (u *User) GenerateJWT() (*model.AuthToken, error) {
 		fmt.Println(err)
 		return nil, err
 	}
-	return nil, nil
-	// return &model.AuthToken{
-	// 	AccessToken: accessToken,
-	// 	ExpiredAt:   expiredAt,
-	// }, nil
+
+	return &model.AuthToken{
+		AccessToken: accessToken,
+		ExpiredAt:   expiredAt,
+	}, nil
 }
