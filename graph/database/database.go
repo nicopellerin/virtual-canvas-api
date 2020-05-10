@@ -13,9 +13,9 @@ import (
 const dbName = "virtualcanvas"
 const collectionName = "users"
 
-var Collection *mongo.Collection
+// var Collection *mongo.Collection
 
-func New() {
+func New() *mongo.Database {
 	mongoURI := utils.GetEnvVars("MONGO_URI")
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
@@ -30,7 +30,10 @@ func New() {
 		log.Fatal(err)
 	}
 
-	Collection = client.Database(dbName).Collection(collectionName)
+	db := client.Database(dbName)
+	// Collection = db.Collection(collectionName)
 
 	fmt.Println("Connected to MONGO_DB")
+
+	return db
 }

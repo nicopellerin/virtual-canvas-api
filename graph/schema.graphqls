@@ -23,6 +23,13 @@ input UsernameInput {
   username: String!
 }
 
+input UpdateUserInput {
+  username: String!
+  instagram: String
+  facebook: String
+  website: String
+}
+
 input LoginUserInput {
   username: String!
   password: String!
@@ -31,6 +38,29 @@ input LoginUserInput {
 input SignupUserInput {
   email: String!
   password: String!
+  username: String!
+}
+
+input UpdateArtworkInput {
+  id: ID!
+  imageId: ID!
+  src: String!
+  name: String!
+  ratio: Float!
+  border: Boolean!
+  texture: Boolean!
+  background: Boolean!
+  rotate: Boolean!
+  lighting: String!
+  username: String!
+}
+
+input DeleteArtworkInput {
+  username: String!
+  id: ID!
+}
+
+input GetAllArtworkInput {
   username: String!
 }
 
@@ -66,11 +96,14 @@ type PublicProfile {
 
 type Query {
   getUser(input: UsernameInput): User
+  getPublicProfile(input: UsernameInput): PublicProfile
 }
 
 type Mutation {
-  updateUser(input: UsernameInput!): User!
+  updateUser(input: UpdateUserInput!): User!
   loginUser(input: LoginUserInput!): AuthResponse!
   signupUser(input: SignupUserInput!): AuthResponse!
   addArtwork(input: AddArtworkInput!): Image!
+  updateArtwork(input: UpdateArtworkInput): Image
+  deleteArtwork(input: DeleteArtworkInput): Image
 }

@@ -20,6 +20,15 @@ type AuthToken struct {
 	ExpiredAt   time.Time `json:"expiredAt"`
 }
 
+type DeleteArtworkInput struct {
+	Username string `json:"username"`
+	ID       string `json:"id"`
+}
+
+type GetAllArtworkInput struct {
+	Username string `json:"username"`
+}
+
 type LoginUserInput struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -29,6 +38,27 @@ type SignupUserInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Username string `json:"username"`
+}
+
+type UpdateArtworkInput struct {
+	ID         string  `json:"id"`
+	ImageID    string  `json:"imageId"`
+	Src        string  `json:"src"`
+	Name       string  `json:"name"`
+	Ratio      float64 `json:"ratio"`
+	Border     bool    `json:"border"`
+	Texture    bool    `json:"texture"`
+	Background bool    `json:"background"`
+	Rotate     bool    `json:"rotate"`
+	Lighting   string  `json:"lighting"`
+	Username   string  `json:"username"`
+}
+
+type UpdateUserInput struct {
+	Username  string  `json:"username"`
+	Instagram *string `json:"instagram"`
+	Facebook  *string `json:"facebook"`
+	Website   *string `json:"website"`
 }
 
 type UsernameInput struct {

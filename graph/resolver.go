@@ -3,7 +3,7 @@
 package graph
 
 import (
-	"github.com/nicopellerin/virtual-canvas-api/graph/models"
+	"github.com/nicopellerin/virtual-canvas-api/graph/database"
 )
 
 // This file will not be regenerated automatically.
@@ -11,5 +11,6 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	images *models.Image
+	// images *models.Image
+	UsersCollection database.UsersCollection
 }

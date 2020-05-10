@@ -69,10 +69,12 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AddArtwork func(childComplexity int, input models.AddArtworkInput) int
-		LoginUser  func(childComplexity int, input models.LoginUserInput) int
-		SignupUser func(childComplexity int, input models.SignupUserInput) int
-		UpdateUser func(childComplexity int, input models.UsernameInput) int
+		AddArtwork    func(childComplexity int, input models.AddArtworkInput) int
+		DeleteArtwork func(childComplexity int, input *models.DeleteArtworkInput) int
+		LoginUser     func(childComplexity int, input models.LoginUserInput) int
+		SignupUser    func(childComplexity int, input models.SignupUserInput) int
+		UpdateArtwork func(childComplexity int, input *models.UpdateArtworkInput) int
+		UpdateUser    func(childComplexity int, input models.UpdateUserInput) int
 	}
 
 	PublicProfile struct {
@@ -84,7 +86,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetUser func(childComplexity int, input *models.UsernameInput) int
+		GetPublicProfile func(childComplexity int, input *models.UsernameInput) int
+		GetUser          func(childComplexity int, input *models.UsernameInput) int
 	}
 
 	Social struct {
@@ -104,16 +107,19 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	UpdateUser(ctx context.Context, input models.UsernameInput) (*models.User, error)
+	UpdateUser(ctx context.Context, input models.UpdateUserInput) (*models.User, error)
 	LoginUser(ctx context.Context, input models.LoginUserInput) (*models.AuthResponse, error)
 	SignupUser(ctx context.Context, input models.SignupUserInput) (*models.AuthResponse, error)
 	AddArtwork(ctx context.Context, input models.AddArtworkInput) (*models.Image, error)
+	UpdateArtwork(ctx context.Context, input *models.UpdateArtworkInput) (*models.Image, error)
+	DeleteArtwork(ctx context.Context, input *models.DeleteArtworkInput) (*models.Image, error)
 }
 type PublicProfileResolver interface {
 	ID(ctx context.Context, obj *models.PublicProfile) (string, error)
 }
 type QueryResolver interface {
 	GetUser(ctx context.Context, input *models.UsernameInput) (*models.User, error)
+	GetPublicProfile(ctx context.Context, input *models.UsernameInput) (*models.PublicProfile, error)
 }
 type UserResolver interface {
 	ID(ctx context.Context, obj *models.User) (string, error)
@@ -240,6 +246,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddArtwork(childComplexity, args["input"].(models.AddArtworkInput)), true
 
+	case "Mutation.deleteArtwork":
+		if e.complexity.Mutation.DeleteArtwork == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteArtwork_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteArtwork(childComplexity, args["input"].(*models.DeleteArtworkInput)), true
+
 	case "Mutation.loginUser":
 		if e.complexity.Mutation.LoginUser == nil {
 			break
@@ -264,6 +282,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SignupUser(childComplexity, args["input"].(models.SignupUserInput)), true
 
+	case "Mutation.updateArtwork":
+		if e.complexity.Mutation.UpdateArtwork == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateArtwork_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateArtwork(childComplexity, args["input"].(*models.UpdateArtworkInput)), true
+
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
 			break
@@ -274,7 +304,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(models.UsernameInput)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["input"].(models.UpdateUserInput)), true
 
 	case "PublicProfile.email":
 		if e.complexity.PublicProfile.Email == nil {
@@ -310,6 +340,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PublicProfile.Username(childComplexity), true
+
+	case "Query.getPublicProfile":
+		if e.complexity.Query.GetPublicProfile == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getPublicProfile_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetPublicProfile(childComplexity, args["input"].(*models.UsernameInput)), true
 
 	case "Query.getUser":
 		if e.complexity.Query.GetUser == nil {
@@ -475,6 +517,13 @@ input UsernameInput {
   username: String!
 }
 
+input UpdateUserInput {
+  username: String!
+  instagram: String
+  facebook: String
+  website: String
+}
+
 input LoginUserInput {
   username: String!
   password: String!
@@ -483,6 +532,29 @@ input LoginUserInput {
 input SignupUserInput {
   email: String!
   password: String!
+  username: String!
+}
+
+input UpdateArtworkInput {
+  id: ID!
+  imageId: ID!
+  src: String!
+  name: String!
+  ratio: Float!
+  border: Boolean!
+  texture: Boolean!
+  background: Boolean!
+  rotate: Boolean!
+  lighting: String!
+  username: String!
+}
+
+input DeleteArtworkInput {
+  username: String!
+  id: ID!
+}
+
+input GetAllArtworkInput {
   username: String!
 }
 
@@ -518,13 +590,16 @@ type PublicProfile {
 
 type Query {
   getUser(input: UsernameInput): User
+  getPublicProfile(input: UsernameInput): PublicProfile
 }
 
 type Mutation {
-  updateUser(input: UsernameInput!): User!
+  updateUser(input: UpdateUserInput!): User!
   loginUser(input: LoginUserInput!): AuthResponse!
   signupUser(input: SignupUserInput!): AuthResponse!
   addArtwork(input: AddArtworkInput!): Image!
+  updateArtwork(input: UpdateArtworkInput): Image
+  deleteArtwork(input: DeleteArtworkInput): Image
 }
 `, BuiltIn: false},
 }
@@ -540,6 +615,20 @@ func (ec *executionContext) field_Mutation_addArtwork_args(ctx context.Context, 
 	var arg0 models.AddArtworkInput
 	if tmp, ok := rawArgs["input"]; ok {
 		arg0, err = ec.unmarshalNAddArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐAddArtworkInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteArtwork_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.DeleteArtworkInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalODeleteArtworkInput2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐDeleteArtworkInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -576,12 +665,26 @@ func (ec *executionContext) field_Mutation_signupUser_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateArtwork_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.UpdateArtworkInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalOUpdateArtworkInput2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 models.UsernameInput
+	var arg0 models.UpdateUserInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNUsernameInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUsernameInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateUserInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateUserInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -601,6 +704,20 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getPublicProfile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.UsernameInput
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalOUsernameInput2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUsernameInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1120,7 +1237,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUser(rctx, args["input"].(models.UsernameInput))
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["input"].(models.UpdateUserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1258,6 +1375,82 @@ func (ec *executionContext) _Mutation_addArtwork(ctx context.Context, field grap
 	res := resTmp.(*models.Image)
 	fc.Result = res
 	return ec.marshalNImage2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateArtwork(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateArtwork_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateArtwork(rctx, args["input"].(*models.UpdateArtworkInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Image)
+	fc.Result = res
+	return ec.marshalOImage2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteArtwork(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteArtwork_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteArtwork(rctx, args["input"].(*models.DeleteArtworkInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Image)
+	fc.Result = res
+	return ec.marshalOImage2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _PublicProfile_id(ctx context.Context, field graphql.CollectedField, obj *models.PublicProfile) (ret graphql.Marshaler) {
@@ -1460,6 +1653,44 @@ func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.Co
 	res := resTmp.(*models.User)
 	fc.Result = res
 	return ec.marshalOUser2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getPublicProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getPublicProfile_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetPublicProfile(rctx, args["input"].(*models.UsernameInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.PublicProfile)
+	fc.Result = res
+	return ec.marshalOPublicProfile2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐPublicProfile(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2898,6 +3129,48 @@ func (ec *executionContext) unmarshalInputAddArtworkInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteArtworkInput(ctx context.Context, obj interface{}) (models.DeleteArtworkInput, error) {
+	var it models.DeleteArtworkInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputGetAllArtworkInput(ctx context.Context, obj interface{}) (models.GetAllArtworkInput, error) {
+	var it models.GetAllArtworkInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLoginUserInput(ctx context.Context, obj interface{}) (models.LoginUserInput, error) {
 	var it models.LoginUserInput
 	var asMap = obj.(map[string]interface{})
@@ -2943,6 +3216,120 @@ func (ec *executionContext) unmarshalInputSignupUserInput(ctx context.Context, o
 		case "username":
 			var err error
 			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateArtworkInput(ctx context.Context, obj interface{}) (models.UpdateArtworkInput, error) {
+	var it models.UpdateArtworkInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "imageId":
+			var err error
+			it.ImageID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "src":
+			var err error
+			it.Src, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "ratio":
+			var err error
+			it.Ratio, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "border":
+			var err error
+			it.Border, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "texture":
+			var err error
+			it.Texture, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "background":
+			var err error
+			it.Background, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "rotate":
+			var err error
+			it.Rotate, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lighting":
+			var err error
+			it.Lighting, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, obj interface{}) (models.UpdateUserInput, error) {
+	var it models.UpdateUserInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "instagram":
+			var err error
+			it.Instagram, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "facebook":
+			var err error
+			it.Facebook, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "website":
+			var err error
+			it.Website, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3144,6 +3531,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "updateArtwork":
+			out.Values[i] = ec._Mutation_updateArtwork(ctx, field)
+		case "deleteArtwork":
+			out.Values[i] = ec._Mutation_deleteArtwork(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3229,6 +3620,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getUser(ctx, field)
+				return res
+			})
+		case "getPublicProfile":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getPublicProfile(ctx, field)
 				return res
 			})
 		case "__type":
@@ -3756,6 +4158,10 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
+func (ec *executionContext) unmarshalNUpdateUserInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateUserInput(ctx context.Context, v interface{}) (models.UpdateUserInput, error) {
+	return ec.unmarshalInputUpdateUserInput(ctx, v)
+}
+
 func (ec *executionContext) marshalNUser2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
@@ -3768,10 +4174,6 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋnicopellerinᚋvirtua
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNUsernameInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUsernameInput(ctx context.Context, v interface{}) (models.UsernameInput, error) {
-	return ec.unmarshalInputUsernameInput(ctx, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -4023,6 +4425,18 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
 }
 
+func (ec *executionContext) unmarshalODeleteArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐDeleteArtworkInput(ctx context.Context, v interface{}) (models.DeleteArtworkInput, error) {
+	return ec.unmarshalInputDeleteArtworkInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalODeleteArtworkInput2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐDeleteArtworkInput(ctx context.Context, v interface{}) (*models.DeleteArtworkInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalODeleteArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐDeleteArtworkInput(ctx, v)
+	return &res, err
+}
+
 func (ec *executionContext) marshalOImage2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx context.Context, sel ast.SelectionSet, v models.Image) graphql.Marshaler {
 	return ec._Image(ctx, sel, &v)
 }
@@ -4074,6 +4488,17 @@ func (ec *executionContext) marshalOImage2ᚖgithubᚗcomᚋnicopellerinᚋvirtu
 	return ec._Image(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOPublicProfile2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐPublicProfile(ctx context.Context, sel ast.SelectionSet, v models.PublicProfile) graphql.Marshaler {
+	return ec._PublicProfile(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOPublicProfile2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐPublicProfile(ctx context.Context, sel ast.SelectionSet, v *models.PublicProfile) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PublicProfile(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOSocial2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐSocial(ctx context.Context, sel ast.SelectionSet, v models.Social) graphql.Marshaler {
 	return ec._Social(ctx, sel, &v)
 }
@@ -4106,6 +4531,18 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return ec.marshalOString2string(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOUpdateArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx context.Context, v interface{}) (models.UpdateArtworkInput, error) {
+	return ec.unmarshalInputUpdateArtworkInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOUpdateArtworkInput2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx context.Context, v interface{}) (*models.UpdateArtworkInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOUpdateArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) marshalOUser2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {

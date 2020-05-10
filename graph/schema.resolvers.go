@@ -5,88 +5,33 @@ package graph
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"log"
 
-	"github.com/nicopellerin/virtual-canvas-api/graph/database"
 	"github.com/nicopellerin/virtual-canvas-api/graph/generated"
 	"github.com/nicopellerin/virtual-canvas-api/graph/models"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (r *mutationResolver) UpdateUser(ctx context.Context, input models.UsernameInput) (*models.User, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *mutationResolver) UpdateUser(ctx context.Context, input models.UpdateUserInput) (*models.User, error) {
+	return r.UsersCollection.UpdateUser(ctx, input)
 }
 
 func (r *mutationResolver) LoginUser(ctx context.Context, input models.LoginUserInput) (*models.AuthResponse, error) {
-	var user *models.User
-	database.Collection.FindOne(ctx, bson.D{{"username", input.Username}}).Decode(&user)
-
-	if user.Username != input.Username {
-		fmt.Println("User does not exist")
-		return nil, errors.New("User does not exist")
-	}
-
-	match := user.CheckPasswordHash(input.Password)
-	if !match {
-		fmt.Println("Password is not valid")
-		return nil, errors.New("Password is not valid")
-	}
-
-	authToken, err := user.GenerateJWT()
-	if err != nil {
-		fmt.Println("Failed to generate token")
-	}
-
-	return &models.AuthResponse{
-		AuthToken: authToken,
-		User:      user,
-	}, nil
+	return r.UsersCollection.LoginUser(ctx, input)
 }
 
 func (r *mutationResolver) SignupUser(ctx context.Context, input models.SignupUserInput) (*models.AuthResponse, error) {
-	user := new(models.User)
-
-	err := database.Collection.FindOne(ctx, bson.D{{"username", input.Username}}).Decode(&user)
-	if err == nil {
-		return nil, errors.New("User already exists")
-	}
-
-	if len(input.Password) < 8 {
-		return nil, errors.New("Please choose a password with a minimum of 8 characters")
-	}
-
-	err = user.HashPassword(input.Password)
-	if err != nil {
-		fmt.Println("Error hashing password")
-		return nil, err
-	}
-
-	user.Email = input.Email
-	user.Username = input.Username
-	user.Images = &[]*models.Image{}
-
-	if input.Username != "" {
-		insertResult, err := database.Collection.InsertOne(ctx, user)
-		if err != nil {
-			log.Fatal(err, insertResult)
-		}
-	}
-
-	authToken, err := user.GenerateJWT()
-	if err != nil {
-		fmt.Println("Failed to generate token")
-	}
-
-	return &models.AuthResponse{
-		AuthToken: authToken,
-		User:      user,
-	}, nil
+	return r.UsersCollection.SignupUser(ctx, input)
 }
 
 func (r *mutationResolver) AddArtwork(ctx context.Context, input models.AddArtworkInput) (*models.Image, error) {
-	panic(fmt.Errorf("not implemented"))
+	return nil, nil
+}
+
+func (r *mutationResolver) UpdateArtwork(ctx context.Context, input *models.UpdateArtworkInput) (*models.Image, error) {
+	return r.UsersCollection.UpdateArtwork(ctx, input)
+}
+
+func (r *mutationResolver) DeleteArtwork(ctx context.Context, input *models.DeleteArtworkInput) (*models.Image, error) {
+	return r.UsersCollection.DeleteArtwork(ctx, input)
 }
 
 func (r *publicProfileResolver) ID(ctx context.Context, obj *models.PublicProfile) (string, error) {
@@ -94,7 +39,11 @@ func (r *publicProfileResolver) ID(ctx context.Context, obj *models.PublicProfil
 }
 
 func (r *queryResolver) GetUser(ctx context.Context, input *models.UsernameInput) (*models.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.UsersCollection.GetUser(ctx, input)
+}
+
+func (r *queryResolver) GetPublicProfile(ctx context.Context, input *models.UsernameInput) (*models.PublicProfile, error) {
+	return r.UsersCollection.GetPublicProfile(ctx, input)
 }
 
 func (r *userResolver) ID(ctx context.Context, obj *models.User) (string, error) {
@@ -125,3 +74,10 @@ type mutationResolver struct{ *Resolver }
 type publicProfileResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.

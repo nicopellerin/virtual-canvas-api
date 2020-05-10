@@ -16,16 +16,18 @@ import (
 const defaultPort = "8080"
 
 func main() {
-	database.New()
+	db := database.New()
 
 	router := chi.NewRouter()
+
+	// router.Use(auth.Middleware(&db))
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{UsersCollection: database.UsersCollection{DB: db}}}))
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
