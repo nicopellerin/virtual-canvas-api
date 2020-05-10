@@ -24,8 +24,9 @@ func main() {
 
 	router.Use(cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8000"},
+		AllowedHeaders:   []string{"Accept", "Token", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
-		Debug:            true,
+		Debug:            false,
 	}).Handler)
 
 	router.Use(auth.Middleware(db))
