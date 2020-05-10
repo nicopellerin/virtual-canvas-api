@@ -1,8 +1,8 @@
 web:
-  build:
-    working_dir: /app
-    ports:
-      - "8080:8080"
-    volumes:
-      - .:/app
-    command: go run server.go
+  build: .
+  working_dir: /app
+  ports:
+    - "8080:8080"
+  volumes:
+    - .:/app
+  command: go run server.go
