@@ -134,7 +134,7 @@ func (u *UsersCollection) AddArtwork(ctx context.Context, input models.AddArtwor
 		return nil, err
 	}
 
-	return &models.Image{}, nil
+	return &models.Image{Background: input.Background, Border: input.Border, ID: input.ID, Name: input.Name, Ratio: input.Ratio, Rotate: input.Rotate, Src: input.Src, Texture: input.Texture}, nil
 }
 
 func (u *UsersCollection) UpdateArtwork(ctx context.Context, input models.UpdateArtworkInput) (*models.Image, error) {
