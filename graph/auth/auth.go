@@ -32,6 +32,11 @@ func Middleware(db *mongo.Database) func(http.Handler) http.Handler {
 				return []byte(secret), nil
 			})
 
+			if token == nil {
+				next.ServeHTTP(w, r)
+				return
+			}
+
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				username := claims["client"]
 
@@ -42,7 +47,7 @@ func Middleware(db *mongo.Database) func(http.Handler) http.Handler {
 				r = r.WithContext(ctx)
 				next.ServeHTTP(w, r)
 			} else {
-				fmt.Println(err)
+				fmt.Println("Token error", err)
 				next.ServeHTTP(w, r)
 			}
 		})

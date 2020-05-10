@@ -12,6 +12,7 @@ import (
 	"github.com/nicopellerin/virtual-canvas-api/graph/auth"
 	"github.com/nicopellerin/virtual-canvas-api/graph/database"
 	"github.com/nicopellerin/virtual-canvas-api/graph/generated"
+	"github.com/rs/cors"
 )
 
 const defaultPort = "8080"
@@ -20,6 +21,12 @@ func main() {
 	db := database.New()
 
 	router := chi.NewRouter()
+
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8000"},
+		AllowCredentials: true,
+		Debug:            true,
+	}).Handler)
 
 	router.Use(auth.Middleware(db))
 
