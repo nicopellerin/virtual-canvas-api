@@ -2,12 +2,15 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
-	"github.com/nicopellerin/virtual-canvas-api/graph/database"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/nicopellerin/virtual-canvas-api/graph/models"
+	"github.com/nicopellerin/virtual-canvas-api/graph/utils"
 )
 
 type contextKey struct {
@@ -16,27 +19,32 @@ type contextKey struct {
 
 var userCtxKey = &contextKey{"user"}
 
-func Middleware(db *database.Collection) func(http.Handler) http.Handler {
+func Middleware(db *mongo.Database) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			c, err := r.Cookie("vc-auth")
+			var secret = utils.GetEnvVars("JWT_SECRET")
 
-			if err != nil || c == nil {
+			token, err := jwt.Parse(r.Header.Get("Token"), func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+				}
+
+				return []byte(secret), nil
+			})
+
+			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+				username := claims["client"]
+
+				user := getUserByID(db, username)
+
+				ctx := context.WithValue(r.Context(), userCtxKey, user)
+
+				r = r.WithContext(ctx)
+				next.ServeHTTP(w, r)
+			} else {
+				fmt.Println(err)
 				next.ServeHTTP(w, r)
 			}
-
-			userID, err := validateAndGetUserID(c)
-			if err != nil {
-				http.Error(w, "Invalid cookie", http.StatusForbidden)
-				return
-			}
-
-			user := getUserByID(db, userID)
-
-			ctx := context.WithValue(r.Context(), userCtxKey, user)
-
-			r = r.WithContext(ctx)
-			next.ServeHTTP(w, r)
 		})
 	}
 }
@@ -46,13 +54,9 @@ func ForContext(ctx context.Context) *models.User {
 	return raw
 }
 
-func validateAndGetUserID(c *http.Cookie) (string, error) {
-	return c.String(), nil
-}
-
-func getUserByID(db *database.DB, userID string) *models.User {
+func getUserByID(db *mongo.Database, userID interface{}) *models.User {
 	var user *models.User
 	ctx := context.Background()
-	db.Collection.FindOne(ctx, bson.D{{"username", userID}}).Decode(&user)
+	db.Collection("users").FindOne(ctx, bson.D{{"username", userID}}).Decode(&user)
 	return user
 }

@@ -78,6 +78,16 @@ type Image {
 
 input AddArtworkInput {
   id: ID!
+  imageId: ID!
+  src: String!
+  name: String!
+  ratio: Float!
+  border: Boolean!
+  texture: Boolean!
+  background: Boolean!
+  rotate: Boolean!
+  lighting: String!
+  username: String!
 }
 
 type Social {

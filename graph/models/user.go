@@ -44,14 +44,16 @@ var secret = utils.GetEnvVars("JWT_SECRET")
 func (u *User) GenerateJWT() (*AuthToken, error) {
 	expiredAt := time.Now().Add(time.Hour * 24 * 7)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		ExpiresAt: expiredAt.Unix(),
-		Id:        u.Username,
-		IssuedAt:  time.Now().Unix(),
-		Issuer:    "virtual-canvas",
-	})
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+
+	claims["authorized"] = true
+	claims["client"] = u.Username
+	claims["exp"] = expiredAt
 
 	accessToken, err := token.SignedString([]byte(secret))
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

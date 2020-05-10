@@ -124,6 +124,19 @@ func (u *UsersCollection) GetPublicProfile(ctx context.Context, input *models.Us
 	return &user, nil
 }
 
+func (u *UsersCollection) AddArtwork(ctx context.Context, input models.AddArtworkInput) (*models.Image, error) {
+	filter := bson.M{"username": input.Username}
+	update := bson.M{"$push": bson.M{"images": &models.Image{Background: input.Background, Border: input.Border, ID: input.ImageID, Name: input.Name, Ratio: input.Ratio, Rotate: input.Rotate, Src: input.Src, Texture: input.Texture}}}
+
+	res, err := u.DB.Collection("users").UpdateOne(ctx, filter, update)
+	if err != nil {
+		fmt.Println(err, res)
+		return nil, err
+	}
+
+	return &models.Image{}, nil
+}
+
 func (u *UsersCollection) UpdateArtwork(ctx context.Context, input *models.UpdateArtworkInput) (*models.Image, error) {
 	filter := bson.M{"username": input.Username, "images.id": input.ImageID}
 

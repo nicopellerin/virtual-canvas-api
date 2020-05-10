@@ -572,6 +572,16 @@ type Image {
 
 input AddArtworkInput {
   id: ID!
+  imageId: ID!
+  src: String!
+  name: String!
+  ratio: Float!
+  border: Boolean!
+  texture: Boolean!
+  background: Boolean!
+  rotate: Boolean!
+  lighting: String!
+  username: String!
 }
 
 type Social {
@@ -3120,6 +3130,66 @@ func (ec *executionContext) unmarshalInputAddArtworkInput(ctx context.Context, o
 		case "id":
 			var err error
 			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "imageId":
+			var err error
+			it.ImageID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "src":
+			var err error
+			it.Src, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "ratio":
+			var err error
+			it.Ratio, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "border":
+			var err error
+			it.Border, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "texture":
+			var err error
+			it.Texture, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "background":
+			var err error
+			it.Background, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "rotate":
+			var err error
+			it.Rotate, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lighting":
+			var err error
+			it.Lighting, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "username":
+			var err error
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

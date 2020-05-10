@@ -7,7 +7,17 @@ import (
 )
 
 type AddArtworkInput struct {
-	ID string `json:"id"`
+	ID         string  `json:"id"`
+	ImageID    string  `json:"imageId"`
+	Src        string  `json:"src"`
+	Name       string  `json:"name"`
+	Ratio      float64 `json:"ratio"`
+	Border     bool    `json:"border"`
+	Texture    bool    `json:"texture"`
+	Background bool    `json:"background"`
+	Rotate     bool    `json:"rotate"`
+	Lighting   string  `json:"lighting"`
+	Username   string  `json:"username"`
 }
 
 type AuthResponse struct {

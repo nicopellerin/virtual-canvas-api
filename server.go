@@ -9,6 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi"
 	"github.com/nicopellerin/virtual-canvas-api/graph"
+	"github.com/nicopellerin/virtual-canvas-api/graph/auth"
 	"github.com/nicopellerin/virtual-canvas-api/graph/database"
 	"github.com/nicopellerin/virtual-canvas-api/graph/generated"
 )
@@ -20,7 +21,7 @@ func main() {
 
 	router := chi.NewRouter()
 
-	// router.Use(auth.Middleware(&db))
+	router.Use(auth.Middleware(db))
 
 	port := os.Getenv("PORT")
 	if port == "" {

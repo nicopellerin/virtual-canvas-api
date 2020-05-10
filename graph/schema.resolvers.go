@@ -5,12 +5,17 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/nicopellerin/virtual-canvas-api/graph/auth"
 	"github.com/nicopellerin/virtual-canvas-api/graph/generated"
 	"github.com/nicopellerin/virtual-canvas-api/graph/models"
 )
 
 func (r *mutationResolver) UpdateUser(ctx context.Context, input models.UpdateUserInput) (*models.User, error) {
+	if user := auth.ForContext(ctx); user == nil {
+		return nil, fmt.Errorf("Access denied")
+	}
 	return r.UsersCollection.UpdateUser(ctx, input)
 }
 
@@ -23,14 +28,23 @@ func (r *mutationResolver) SignupUser(ctx context.Context, input models.SignupUs
 }
 
 func (r *mutationResolver) AddArtwork(ctx context.Context, input models.AddArtworkInput) (*models.Image, error) {
-	return nil, nil
+	if user := auth.ForContext(ctx); user == nil {
+		return nil, fmt.Errorf("Access denied")
+	}
+	return r.UsersCollection.AddArtwork(ctx, input)
 }
 
 func (r *mutationResolver) UpdateArtwork(ctx context.Context, input *models.UpdateArtworkInput) (*models.Image, error) {
+	if user := auth.ForContext(ctx); user == nil {
+		return nil, fmt.Errorf("Access denied")
+	}
 	return r.UsersCollection.UpdateArtwork(ctx, input)
 }
 
 func (r *mutationResolver) DeleteArtwork(ctx context.Context, input *models.DeleteArtworkInput) (*models.Image, error) {
+	if user := auth.ForContext(ctx); user == nil {
+		return nil, fmt.Errorf("Access denied")
+	}
 	return r.UsersCollection.DeleteArtwork(ctx, input)
 }
 
@@ -39,6 +53,9 @@ func (r *publicProfileResolver) ID(ctx context.Context, obj *models.PublicProfil
 }
 
 func (r *queryResolver) GetUser(ctx context.Context, input *models.UsernameInput) (*models.User, error) {
+	if user := auth.ForContext(ctx); user == nil {
+		return nil, fmt.Errorf("Access denied")
+	}
 	return r.UsersCollection.GetUser(ctx, input)
 }
 
@@ -74,10 +91,3 @@ type mutationResolver struct{ *Resolver }
 type publicProfileResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type userResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
