@@ -8,7 +8,6 @@ import (
 
 type AddArtworkInput struct {
 	ID         string  `json:"id"`
-	ImageID    string  `json:"imageId"`
 	Src        string  `json:"src"`
 	Name       string  `json:"name"`
 	Ratio      float64 `json:"ratio"`
@@ -51,7 +50,7 @@ type SignupUserInput struct {
 }
 
 type UpdateArtworkInput struct {
-	ImageID    string  `json:"imageId"`
+	ID         string  `json:"id"`
 	Src        string  `json:"src"`
 	Name       string  `json:"name"`
 	Ratio      float64 `json:"ratio"`

@@ -536,7 +536,7 @@ input SignupUserInput {
 }
 
 input UpdateArtworkInput {
-  imageId: ID!
+  id: ID!
   src: String!
   name: String!
   ratio: Float!
@@ -571,7 +571,6 @@ type Image {
 
 input AddArtworkInput {
   id: ID!
-  imageId: ID!
   src: String!
   name: String!
   ratio: Float!
@@ -3132,12 +3131,6 @@ func (ec *executionContext) unmarshalInputAddArtworkInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "imageId":
-			var err error
-			it.ImageID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "src":
 			var err error
 			it.Src, err = ec.unmarshalNString2string(ctx, v)
@@ -3300,9 +3293,9 @@ func (ec *executionContext) unmarshalInputUpdateArtworkInput(ctx context.Context
 
 	for k, v := range asMap {
 		switch k {
-		case "imageId":
+		case "id":
 			var err error
-			it.ImageID, err = ec.unmarshalNID2string(ctx, v)
+			it.ID, err = ec.unmarshalNID2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
