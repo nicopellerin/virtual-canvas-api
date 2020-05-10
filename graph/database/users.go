@@ -137,7 +137,7 @@ func (u *UsersCollection) AddArtwork(ctx context.Context, input models.AddArtwor
 	return &models.Image{}, nil
 }
 
-func (u *UsersCollection) UpdateArtwork(ctx context.Context, input *models.UpdateArtworkInput) (*models.Image, error) {
+func (u *UsersCollection) UpdateArtwork(ctx context.Context, input models.UpdateArtworkInput) (*models.Image, error) {
 	filter := bson.M{"username": input.Username, "images.id": input.ImageID}
 
 	update := bson.M{"$set": bson.M{"images.$.name": input.Name, "images.$.border": input.Border, "images.$.texture": input.Texture, "images.$.background": input.Background, "images.$.rotate": input.Rotate, "images.$.lighting": input.Lighting}}

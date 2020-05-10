@@ -73,7 +73,7 @@ type ComplexityRoot struct {
 		DeleteArtwork func(childComplexity int, input *models.DeleteArtworkInput) int
 		LoginUser     func(childComplexity int, input models.LoginUserInput) int
 		SignupUser    func(childComplexity int, input models.SignupUserInput) int
-		UpdateArtwork func(childComplexity int, input *models.UpdateArtworkInput) int
+		UpdateArtwork func(childComplexity int, input models.UpdateArtworkInput) int
 		UpdateUser    func(childComplexity int, input models.UpdateUserInput) int
 	}
 
@@ -111,7 +111,7 @@ type MutationResolver interface {
 	LoginUser(ctx context.Context, input models.LoginUserInput) (*models.AuthResponse, error)
 	SignupUser(ctx context.Context, input models.SignupUserInput) (*models.AuthResponse, error)
 	AddArtwork(ctx context.Context, input models.AddArtworkInput) (*models.Image, error)
-	UpdateArtwork(ctx context.Context, input *models.UpdateArtworkInput) (*models.Image, error)
+	UpdateArtwork(ctx context.Context, input models.UpdateArtworkInput) (*models.Image, error)
 	DeleteArtwork(ctx context.Context, input *models.DeleteArtworkInput) (*models.Image, error)
 }
 type PublicProfileResolver interface {
@@ -292,7 +292,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateArtwork(childComplexity, args["input"].(*models.UpdateArtworkInput)), true
+		return e.complexity.Mutation.UpdateArtwork(childComplexity, args["input"].(models.UpdateArtworkInput)), true
 
 	case "Mutation.updateUser":
 		if e.complexity.Mutation.UpdateUser == nil {
@@ -536,7 +536,6 @@ input SignupUserInput {
 }
 
 input UpdateArtworkInput {
-  id: ID!
   imageId: ID!
   src: String!
   name: String!
@@ -608,7 +607,7 @@ type Mutation {
   loginUser(input: LoginUserInput!): AuthResponse!
   signupUser(input: SignupUserInput!): AuthResponse!
   addArtwork(input: AddArtworkInput!): Image!
-  updateArtwork(input: UpdateArtworkInput): Image
+  updateArtwork(input: UpdateArtworkInput!): Image
   deleteArtwork(input: DeleteArtworkInput): Image
 }
 `, BuiltIn: false},
@@ -678,9 +677,9 @@ func (ec *executionContext) field_Mutation_signupUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_updateArtwork_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *models.UpdateArtworkInput
+	var arg0 models.UpdateArtworkInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalOUpdateArtworkInput2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpdateArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1411,7 +1410,7 @@ func (ec *executionContext) _Mutation_updateArtwork(ctx context.Context, field g
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateArtwork(rctx, args["input"].(*models.UpdateArtworkInput))
+		return ec.resolvers.Mutation().UpdateArtwork(rctx, args["input"].(models.UpdateArtworkInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3301,12 +3300,6 @@ func (ec *executionContext) unmarshalInputUpdateArtworkInput(ctx context.Context
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
-			var err error
-			it.ID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "imageId":
 			var err error
 			it.ImageID, err = ec.unmarshalNID2string(ctx, v)
@@ -4228,6 +4221,10 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
+func (ec *executionContext) unmarshalNUpdateArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx context.Context, v interface{}) (models.UpdateArtworkInput, error) {
+	return ec.unmarshalInputUpdateArtworkInput(ctx, v)
+}
+
 func (ec *executionContext) unmarshalNUpdateUserInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateUserInput(ctx context.Context, v interface{}) (models.UpdateUserInput, error) {
 	return ec.unmarshalInputUpdateUserInput(ctx, v)
 }
@@ -4601,18 +4598,6 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return ec.marshalOString2string(ctx, sel, *v)
-}
-
-func (ec *executionContext) unmarshalOUpdateArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx context.Context, v interface{}) (models.UpdateArtworkInput, error) {
-	return ec.unmarshalInputUpdateArtworkInput(ctx, v)
-}
-
-func (ec *executionContext) unmarshalOUpdateArtworkInput2ᚖgithubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx context.Context, v interface{}) (*models.UpdateArtworkInput, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalOUpdateArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUpdateArtworkInput(ctx, v)
-	return &res, err
 }
 
 func (ec *executionContext) marshalOUser2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {

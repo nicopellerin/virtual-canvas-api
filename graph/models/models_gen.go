@@ -51,7 +51,6 @@ type SignupUserInput struct {
 }
 
 type UpdateArtworkInput struct {
-	ID         string  `json:"id"`
 	ImageID    string  `json:"imageId"`
 	Src        string  `json:"src"`
 	Name       string  `json:"name"`

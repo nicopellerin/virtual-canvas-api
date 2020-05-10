@@ -42,7 +42,6 @@ input SignupUserInput {
 }
 
 input UpdateArtworkInput {
-  id: ID!
   imageId: ID!
   src: String!
   name: String!
@@ -114,6 +113,6 @@ type Mutation {
   loginUser(input: LoginUserInput!): AuthResponse!
   signupUser(input: SignupUserInput!): AuthResponse!
   addArtwork(input: AddArtworkInput!): Image!
-  updateArtwork(input: UpdateArtworkInput): Image
+  updateArtwork(input: UpdateArtworkInput!): Image
   deleteArtwork(input: DeleteArtworkInput): Image
 }

@@ -34,7 +34,7 @@ func (r *mutationResolver) AddArtwork(ctx context.Context, input models.AddArtwo
 	return r.UsersCollection.AddArtwork(ctx, input)
 }
 
-func (r *mutationResolver) UpdateArtwork(ctx context.Context, input *models.UpdateArtworkInput) (*models.Image, error) {
+func (r *mutationResolver) UpdateArtwork(ctx context.Context, input models.UpdateArtworkInput) (*models.Image, error) {
 	if user := auth.ForContext(ctx); user == nil {
 		return nil, fmt.Errorf("Access denied")
 	}
