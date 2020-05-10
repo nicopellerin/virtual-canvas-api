@@ -23,7 +23,7 @@ func main() {
 	router := chi.NewRouter()
 
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8000"},
+		AllowedOrigins:   []string{"http://localhost:8000", "https://virtualcanvas.app"},
 		AllowedHeaders:   []string{"Accept", "Token", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
 		Debug:            false,
