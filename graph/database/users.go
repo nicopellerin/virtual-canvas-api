@@ -147,7 +147,7 @@ func (u *UsersCollection) UpdateArtwork(ctx context.Context, input models.Update
 		fmt.Println(res, err)
 		return nil, err
 	}
-	return &models.Image{}, nil
+	return &models.Image{Background: input.Background, Border: input.Border, ID: input.ID, Name: input.Name, Ratio: input.Ratio, Rotate: input.Rotate, Src: input.Src, Texture: input.Texture}, nil
 }
 
 func (u *UsersCollection) DeleteArtwork(ctx context.Context, input *models.DeleteArtworkInput) (*models.Image, error) {
