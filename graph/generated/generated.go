@@ -36,6 +36,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Image() ImageResolver
 	Mutation() MutationResolver
 	PublicProfile() PublicProfileResolver
 	Query() QueryResolver
@@ -106,6 +107,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type ImageResolver interface {
+	Lighting(ctx context.Context, obj *models.Image) (int, error)
+}
 type MutationResolver interface {
 	UpdateUser(ctx context.Context, input models.UpdateUserInput) (*models.User, error)
 	LoginUser(ctx context.Context, input models.LoginUserInput) (*models.AuthResponse, error)
@@ -544,7 +548,7 @@ input UpdateArtworkInput {
   texture: Boolean!
   background: Boolean!
   rotate: Boolean!
-  lighting: String!
+  lighting: Int!
   username: String!
 }
 
@@ -566,7 +570,7 @@ type Image {
   texture: Boolean!
   background: Boolean!
   rotate: Boolean!
-  lighting: String!
+  lighting: Int!
 }
 
 input AddArtworkInput {
@@ -578,7 +582,7 @@ input AddArtworkInput {
   texture: Boolean!
   background: Boolean!
   rotate: Boolean!
-  lighting: String!
+  lighting: Int!
   username: String!
 }
 
@@ -1198,13 +1202,13 @@ func (ec *executionContext) _Image_lighting(ctx context.Context, field graphql.C
 		Object:   "Image",
 		Field:    field,
 		Args:     nil,
-		IsMethod: false,
+		IsMethod: true,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Lighting, nil
+		return ec.resolvers.Image().Lighting(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1216,9 +1220,9 @@ func (ec *executionContext) _Image_lighting(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3175,7 +3179,7 @@ func (ec *executionContext) unmarshalInputAddArtworkInput(ctx context.Context, o
 			}
 		case "lighting":
 			var err error
-			it.Lighting, err = ec.unmarshalNString2string(ctx, v)
+			it.Lighting, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3343,7 +3347,7 @@ func (ec *executionContext) unmarshalInputUpdateArtworkInput(ctx context.Context
 			}
 		case "lighting":
 			var err error
-			it.Lighting, err = ec.unmarshalNString2string(ctx, v)
+			it.Lighting, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3499,48 +3503,57 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Image_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "src":
 			out.Values[i] = ec._Image_src(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Image_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "ratio":
 			out.Values[i] = ec._Image_ratio(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "border":
 			out.Values[i] = ec._Image_border(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "texture":
 			out.Values[i] = ec._Image_texture(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "background":
 			out.Values[i] = ec._Image_background(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "rotate":
 			out.Values[i] = ec._Image_rotate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "lighting":
-			out.Values[i] = ec._Image_lighting(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Image_lighting(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4176,6 +4189,20 @@ func (ec *executionContext) marshalNImage2ᚖgithubᚗcomᚋnicopellerinᚋvirtu
 		return graphql.Null
 	}
 	return ec._Image(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNLoginUserInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐLoginUserInput(ctx context.Context, v interface{}) (models.LoginUserInput, error) {

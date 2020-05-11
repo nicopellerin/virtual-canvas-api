@@ -50,7 +50,7 @@ input UpdateArtworkInput {
   texture: Boolean!
   background: Boolean!
   rotate: Boolean!
-  lighting: String!
+  lighting: Int!
   username: String!
 }
 
@@ -72,7 +72,7 @@ type Image {
   texture: Boolean!
   background: Boolean!
   rotate: Boolean!
-  lighting: String!
+  lighting: Int!
 }
 
 input AddArtworkInput {
@@ -84,7 +84,7 @@ input AddArtworkInput {
   texture: Boolean!
   background: Boolean!
   rotate: Boolean!
-  lighting: String!
+  lighting: Int!
   username: String!
 }
 

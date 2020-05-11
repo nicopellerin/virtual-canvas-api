@@ -15,7 +15,7 @@ type AddArtworkInput struct {
 	Texture    bool    `json:"texture"`
 	Background bool    `json:"background"`
 	Rotate     bool    `json:"rotate"`
-	Lighting   string  `json:"lighting"`
+	Lighting   int     `json:"lighting"`
 	Username   string  `json:"username"`
 }
 
@@ -58,7 +58,7 @@ type UpdateArtworkInput struct {
 	Texture    bool    `json:"texture"`
 	Background bool    `json:"background"`
 	Rotate     bool    `json:"rotate"`
-	Lighting   string  `json:"lighting"`
+	Lighting   int     `json:"lighting"`
 	Username   string  `json:"username"`
 }
 
