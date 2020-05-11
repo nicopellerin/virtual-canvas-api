@@ -36,7 +36,6 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Image() ImageResolver
 	Mutation() MutationResolver
 	PublicProfile() PublicProfileResolver
 	Query() QueryResolver
@@ -107,9 +106,6 @@ type ComplexityRoot struct {
 	}
 }
 
-type ImageResolver interface {
-	Lighting(ctx context.Context, obj *models.Image) (int, error)
-}
 type MutationResolver interface {
 	UpdateUser(ctx context.Context, input models.UpdateUserInput) (*models.User, error)
 	LoginUser(ctx context.Context, input models.LoginUserInput) (*models.AuthResponse, error)
@@ -1202,13 +1198,13 @@ func (ec *executionContext) _Image_lighting(ctx context.Context, field graphql.C
 		Object:   "Image",
 		Field:    field,
 		Args:     nil,
-		IsMethod: true,
+		IsMethod: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Image().Lighting(rctx, obj)
+		return obj.Lighting, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3503,57 +3499,48 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Image_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "src":
 			out.Values[i] = ec._Image_src(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "name":
 			out.Values[i] = ec._Image_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "ratio":
 			out.Values[i] = ec._Image_ratio(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "border":
 			out.Values[i] = ec._Image_border(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "texture":
 			out.Values[i] = ec._Image_texture(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "background":
 			out.Values[i] = ec._Image_background(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "rotate":
 			out.Values[i] = ec._Image_rotate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
+				invalids++
 			}
 		case "lighting":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Image_lighting(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
+			out.Values[i] = ec._Image_lighting(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -10,5 +10,5 @@ type Image struct {
 	Texture    bool    `json:"texture, omitempty"`
 	Background bool    `json:"background, omitempty"`
 	Rotate     bool    `json:"rotate, omitempty"`
-	Lighting   string  `json:"lighting, omitempty"`
+	Lighting   int     `json:"lighting, omitempty"`
 }
