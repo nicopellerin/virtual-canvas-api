@@ -7,5 +7,5 @@ type PublicProfile struct {
 	Email    string             `json:"email, omitempty"`
 	Username string             `json:"username, omitempty"`
 	Images   []*Image           `json:"images, omitempty"`
-	Social   Social             `json:"social_links, omitempty" bson:"social_links"`
+	Social   Social             `json:"social, omitempty" bson:"social"`
 }
