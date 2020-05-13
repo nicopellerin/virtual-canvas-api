@@ -36,6 +36,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Image() ImageResolver
 	Mutation() MutationResolver
 	PublicProfile() PublicProfileResolver
 	Query() QueryResolver
@@ -59,9 +60,11 @@ type ComplexityRoot struct {
 	Image struct {
 		Background func(childComplexity int) int
 		Border     func(childComplexity int) int
+		BuyLink    func(childComplexity int) int
 		ID         func(childComplexity int) int
 		Lighting   func(childComplexity int) int
 		Name       func(childComplexity int) int
+		Price      func(childComplexity int) int
 		Ratio      func(childComplexity int) int
 		Rotate     func(childComplexity int) int
 		Src        func(childComplexity int) int
@@ -106,6 +109,10 @@ type ComplexityRoot struct {
 	}
 }
 
+type ImageResolver interface {
+	Price(ctx context.Context, obj *models.Image) (*float64, error)
+	BuyLink(ctx context.Context, obj *models.Image) (*string, error)
+}
 type MutationResolver interface {
 	UpdateUser(ctx context.Context, input models.UpdateUserInput) (*models.User, error)
 	LoginUser(ctx context.Context, input models.LoginUserInput) (*models.AuthResponse, error)
@@ -185,6 +192,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Image.Border(childComplexity), true
 
+	case "Image.buyLink":
+		if e.complexity.Image.BuyLink == nil {
+			break
+		}
+
+		return e.complexity.Image.BuyLink(childComplexity), true
+
 	case "Image.id":
 		if e.complexity.Image.ID == nil {
 			break
@@ -205,6 +219,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Image.Name(childComplexity), true
+
+	case "Image.price":
+		if e.complexity.Image.Price == nil {
+			break
+		}
+
+		return e.complexity.Image.Price(childComplexity), true
 
 	case "Image.ratio":
 		if e.complexity.Image.Ratio == nil {
@@ -546,6 +567,8 @@ input UpdateArtworkInput {
   rotate: Boolean!
   lighting: Int!
   username: String!
+  price: Float
+  buyLink: String
 }
 
 input DeleteArtworkInput {
@@ -567,6 +590,8 @@ type Image {
   background: Boolean!
   rotate: Boolean!
   lighting: Int!
+  price: Float
+  buyLink: String
 }
 
 input AddArtworkInput {
@@ -1219,6 +1244,68 @@ func (ec *executionContext) _Image_lighting(ctx context.Context, field graphql.C
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Image_price(ctx context.Context, field graphql.CollectedField, obj *models.Image) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Image",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Image().Price(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Image_buyLink(ctx context.Context, field graphql.CollectedField, obj *models.Image) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Image",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Image().BuyLink(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3353,6 +3440,18 @@ func (ec *executionContext) unmarshalInputUpdateArtworkInput(ctx context.Context
 			if err != nil {
 				return it, err
 			}
+		case "price":
+			var err error
+			it.Price, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "buyLink":
+			var err error
+			it.BuyLink, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -3499,48 +3598,70 @@ func (ec *executionContext) _Image(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Image_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "src":
 			out.Values[i] = ec._Image_src(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Image_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "ratio":
 			out.Values[i] = ec._Image_ratio(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "border":
 			out.Values[i] = ec._Image_border(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "texture":
 			out.Values[i] = ec._Image_texture(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "background":
 			out.Values[i] = ec._Image_background(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "rotate":
 			out.Values[i] = ec._Image_rotate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "lighting":
 			out.Values[i] = ec._Image_lighting(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
+		case "price":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Image_price(ctx, field, obj)
+				return res
+			})
+		case "buyLink":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Image_buyLink(ctx, field, obj)
+				return res
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4509,6 +4630,29 @@ func (ec *executionContext) unmarshalODeleteArtworkInput2ᚖgithubᚗcomᚋnicop
 	}
 	res, err := ec.unmarshalODeleteArtworkInput2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐDeleteArtworkInput(ctx, v)
 	return &res, err
+}
+
+func (ec *executionContext) unmarshalOFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	return graphql.UnmarshalFloat(v)
+}
+
+func (ec *executionContext) marshalOFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	return graphql.MarshalFloat(v)
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOFloat2float64(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOFloat2float64(ctx, sel, *v)
 }
 
 func (ec *executionContext) marshalOImage2githubᚗcomᚋnicopellerinᚋvirtualᚑcanvasᚑapiᚋgraphᚋmodelsᚐImage(ctx context.Context, sel ast.SelectionSet, v models.Image) graphql.Marshaler {

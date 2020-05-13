@@ -140,7 +140,7 @@ func (u *UsersCollection) AddArtwork(ctx context.Context, input models.AddArtwor
 func (u *UsersCollection) UpdateArtwork(ctx context.Context, input models.UpdateArtworkInput) (*models.Image, error) {
 	filter := bson.M{"username": input.Username, "images.id": input.ID}
 
-	update := bson.M{"$set": bson.M{"images.$.name": input.Name, "images.$.border": input.Border, "images.$.texture": input.Texture, "images.$.background": input.Background, "images.$.rotate": input.Rotate, "images.$.lighting": input.Lighting}}
+	update := bson.M{"$set": bson.M{"images.$.name": input.Name, "images.$.border": input.Border, "images.$.texture": input.Texture, "images.$.background": input.Background, "images.$.rotate": input.Rotate, "images.$.lighting": input.Lighting, "images.$.price": input.Price, "images.$.buyLink": input.BuyLink}}
 
 	res, err := u.DB.Collection("users").UpdateOne(context.Background(), filter, update)
 	if err != nil {

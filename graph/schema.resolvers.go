@@ -12,6 +12,14 @@ import (
 	"github.com/nicopellerin/virtual-canvas-api/graph/models"
 )
 
+func (r *imageResolver) Price(ctx context.Context, obj *models.Image) (*float64, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *imageResolver) BuyLink(ctx context.Context, obj *models.Image) (*string, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *mutationResolver) UpdateUser(ctx context.Context, input models.UpdateUserInput) (*models.User, error) {
 	if user := auth.ForContext(ctx); user == nil {
 		return nil, fmt.Errorf("Access denied")
@@ -75,6 +83,9 @@ func (r *userResolver) Social(ctx context.Context, obj *models.User) (*models.So
 	return &obj.Social, nil
 }
 
+// Image returns generated.ImageResolver implementation.
+func (r *Resolver) Image() generated.ImageResolver { return &imageResolver{r} }
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
@@ -87,6 +98,7 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 // User returns generated.UserResolver implementation.
 func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
 
+type imageResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type publicProfileResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

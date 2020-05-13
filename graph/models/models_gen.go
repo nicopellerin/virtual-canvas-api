@@ -50,16 +50,18 @@ type SignupUserInput struct {
 }
 
 type UpdateArtworkInput struct {
-	ID         string  `json:"id"`
-	Src        string  `json:"src"`
-	Name       string  `json:"name"`
-	Ratio      float64 `json:"ratio"`
-	Border     bool    `json:"border"`
-	Texture    bool    `json:"texture"`
-	Background bool    `json:"background"`
-	Rotate     bool    `json:"rotate"`
-	Lighting   int     `json:"lighting"`
-	Username   string  `json:"username"`
+	ID         string   `json:"id"`
+	Src        string   `json:"src"`
+	Name       string   `json:"name"`
+	Ratio      float64  `json:"ratio"`
+	Border     bool     `json:"border"`
+	Texture    bool     `json:"texture"`
+	Background bool     `json:"background"`
+	Rotate     bool     `json:"rotate"`
+	Lighting   int      `json:"lighting"`
+	Username   string   `json:"username"`
+	Price      *float64 `json:"price"`
+	BuyLink    *string  `json:"buyLink"`
 }
 
 type UpdateUserInput struct {

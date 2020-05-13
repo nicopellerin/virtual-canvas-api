@@ -52,6 +52,8 @@ input UpdateArtworkInput {
   rotate: Boolean!
   lighting: Int!
   username: String!
+  price: Float
+  buyLink: String
 }
 
 input DeleteArtworkInput {
@@ -73,6 +75,8 @@ type Image {
   background: Boolean!
   rotate: Boolean!
   lighting: Int!
+  price: Float
+  buyLink: String
 }
 
 input AddArtworkInput {
