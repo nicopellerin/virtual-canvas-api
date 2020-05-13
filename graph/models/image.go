@@ -11,4 +11,6 @@ type Image struct {
 	Background bool    `json:"background, omitempty"`
 	Rotate     bool    `json:"rotate, omitempty"`
 	Lighting   int     `json:"lighting, omitempty"`
+	BuyLink    string  `json:"buyLink, omitempty"`
+	Price      float64 `json:"price, omitempty"`
 }

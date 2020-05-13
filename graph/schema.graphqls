@@ -90,6 +90,8 @@ input AddArtworkInput {
   rotate: Boolean!
   lighting: Int!
   username: String!
+  buyLink: String!
+  price: Float!
 }
 
 type Social {

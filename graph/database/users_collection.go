@@ -126,7 +126,7 @@ func (u *UsersCollection) GetPublicProfile(ctx context.Context, input *models.Us
 
 func (u *UsersCollection) AddArtwork(ctx context.Context, input models.AddArtworkInput) (*models.Image, error) {
 	filter := bson.M{"username": input.Username}
-	update := bson.M{"$push": bson.M{"images": &models.Image{Background: input.Background, Border: input.Border, ID: input.ID, Name: input.Name, Ratio: input.Ratio, Rotate: input.Rotate, Src: input.Src, Texture: input.Texture, Lighting: input.Lighting}}}
+	update := bson.M{"$push": bson.M{"images": &models.Image{Background: input.Background, Border: input.Border, ID: input.ID, Name: input.Name, Ratio: input.Ratio, Rotate: input.Rotate, Src: input.Src, Texture: input.Texture, Lighting: input.Lighting, BuyLink: input.BuyLink, Price: input.Price}}}
 
 	res, err := u.DB.Collection("users").UpdateOne(ctx, filter, update)
 	if err != nil {
@@ -134,7 +134,7 @@ func (u *UsersCollection) AddArtwork(ctx context.Context, input models.AddArtwor
 		return nil, err
 	}
 
-	return &models.Image{Background: input.Background, Border: input.Border, ID: input.ID, Name: input.Name, Ratio: input.Ratio, Rotate: input.Rotate, Src: input.Src, Texture: input.Texture, Lighting: input.Lighting}, nil
+	return &models.Image{Background: input.Background, Border: input.Border, ID: input.ID, Name: input.Name, Ratio: input.Ratio, Rotate: input.Rotate, Src: input.Src, Texture: input.Texture, Lighting: input.Lighting, BuyLink: input.BuyLink, Price: input.Price}, nil
 }
 
 func (u *UsersCollection) UpdateArtwork(ctx context.Context, input models.UpdateArtworkInput) (*models.Image, error) {

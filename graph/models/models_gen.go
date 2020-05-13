@@ -17,6 +17,8 @@ type AddArtworkInput struct {
 	Rotate     bool    `json:"rotate"`
 	Lighting   int     `json:"lighting"`
 	Username   string  `json:"username"`
+	BuyLink    string  `json:"buyLink"`
+	Price      float64 `json:"price"`
 }
 
 type AuthResponse struct {
