@@ -11,7 +11,6 @@ import (
 )
 
 const dbName = "virtualcanvas"
-const collectionName = "users"
 
 func New() *mongo.Database {
 	mongoURI := utils.GetEnvVars("MONGO_URI")
