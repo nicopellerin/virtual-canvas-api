@@ -61,10 +61,6 @@ input DeleteArtworkInput {
   id: ID!
 }
 
-input GetAllArtworkInput {
-  username: String!
-}
-
 type Image {
   id: ID!
   src: String!

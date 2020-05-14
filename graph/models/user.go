@@ -21,6 +21,38 @@ type User struct {
 	Social   Social             `json:"social, omitempty" bson:"social"`
 }
 
+type UpdateUserInput struct {
+	Username  string  `json:"username"`
+	Instagram *string `json:"instagram"`
+	Facebook  *string `json:"facebook"`
+	Website   *string `json:"website"`
+}
+
+type UsernameInput struct {
+	Username string `json:"username"`
+}
+
+type LoginUserInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type SignupUserInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+type AuthResponse struct {
+	AuthToken *AuthToken `json:"authToken"`
+	User      *User      `json:"user"`
+}
+
+type AuthToken struct {
+	AccessToken string    `json:"accessToken"`
+	ExpiredAt   time.Time `json:"expiredAt"`
+}
+
 // HashPassword - Hashes password before saving to DB
 func (u *User) HashPassword(password string) error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), 14)

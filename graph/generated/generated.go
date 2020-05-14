@@ -571,10 +571,6 @@ input DeleteArtworkInput {
   id: ID!
 }
 
-input GetAllArtworkInput {
-  username: String!
-}
-
 type Image {
   id: ID!
   src: String!
@@ -3308,24 +3304,6 @@ func (ec *executionContext) unmarshalInputDeleteArtworkInput(ctx context.Context
 		case "id":
 			var err error
 			it.ID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputGetAllArtworkInput(ctx context.Context, obj interface{}) (models.GetAllArtworkInput, error) {
-	var it models.GetAllArtworkInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "username":
-			var err error
-			it.Username, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
